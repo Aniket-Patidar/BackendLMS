@@ -1,0 +1,39 @@
+// server.js
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+dotenv.config(".env");
+
+
+/* middlewares */
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors({
+    origin: process.env.ORIGIN,
+    credentials: true
+}));
+
+
+/* router */
+const userRouter = require("./router/userRouter");
+const courseRouter = require("./router/courseRouter");
+const errorMiddleware = require('./middleware/error');
+app.use("/user", userRouter);
+app.use("/course", courseRouter);
+app.use("*", (req, res, next) => {
+    res.status(404).json({
+        status: 404,
+        message: "Not Found"
+    })
+});
+
+
+/* server */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+app.use(errorMiddleware);
