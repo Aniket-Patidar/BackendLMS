@@ -3,6 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+
+const userRouter = require("./router/userRouter");
+const courseRouter = require("./router/courseRouter");
+const errorMiddleware = require('./middleware/error');
+const connectDB = require('./models/connectDB');
 dotenv.config(".env");
 
 
@@ -14,12 +19,10 @@ app.use(cors({
     origin: process.env.ORIGIN,
     credentials: true
 }));
+connectDB();
 
 
 /* router */
-const userRouter = require("./router/userRouter");
-const courseRouter = require("./router/courseRouter");
-const errorMiddleware = require('./middleware/error');
 app.use("/user", userRouter);
 app.use("/course", courseRouter);
 app.use("*", (req, res, next) => {
