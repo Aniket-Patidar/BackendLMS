@@ -34,12 +34,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course'
     }],
-    timestamp: {
-        type: Date,
-        required: [true, 'Timestamp is required'],
-        default: Date.now
-    }
-});
+}, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {

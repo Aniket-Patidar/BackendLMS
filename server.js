@@ -6,9 +6,14 @@ const dotenv = require('dotenv');
 
 const userRouter = require("./router/userRouter");
 const courseRouter = require("./router/courseRouter");
+const adminRouter = require("./router/adminRouter");
 const errorMiddleware = require('./middleware/error');
 const connectDB = require('./models/connectDB');
 dotenv.config(".env");
+
+/*  */
+
+
 
 
 /* middlewares */
@@ -22,9 +27,10 @@ app.use(cors({
 connectDB();
 
 
-/* router */
+
 app.use("/user", userRouter);
 app.use("/course", courseRouter);
+app.use("/admin", adminRouter);
 app.use("*", (req, res, next) => {
     res.status(404).json({
         status: 404,
