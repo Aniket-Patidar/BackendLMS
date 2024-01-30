@@ -152,6 +152,14 @@ exports.enrolledCourses = async (req, res, next) => {
     }
 };
 
+exports.dashboard = async (req, res, next) => {
+    try {
+        res.status(200).json({ success: true, message: "user dashboard" });
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.logout = async (req, res, next) => {
     try {
         req.user = null;
