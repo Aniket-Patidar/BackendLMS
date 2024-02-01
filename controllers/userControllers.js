@@ -14,21 +14,18 @@ exports.register = catchAsyncError(async (req, res, next) => {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
-            return next(new ErrorHandler('please enter credentials', 404));
+            return next(new ErrorHandler('please enter credentials', 400));
         }
 
         const user = await User.findOne({ email: email });
-
         if (user) {
             return next(new ErrorHandler('User all ready exist', 400));
         }
 
-
-
         const newUser = new User({ name, email, password });
-
         await newUser.save();
-        res.status(200).json({ success: true, message: 'User registered successfully' });
+        const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, { expiresIn: parseInt(process.env.EXPIRE) });
+        res.status(200).json({ success: true, user, token, message: 'User registered successfully' });
     } catch (error) {
         next(error);
     }
@@ -48,8 +45,22 @@ exports.login = catchAsyncError(async (req, res, next) => {
             return next(new ErrorHandler('Invalid password', 400));
         }
 
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: 3600 });
-        res.status(200).json({ success: true, token: token });
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: parseInt(process.env.EXPIRE) });
+        res.status(200).json({ success: true, user, token: token });
+    } catch (error) {
+        next(error);
+    }
+});
+
+exports.jwt = catchAsyncError(async (req, res, next) => {
+    const userId = req.user._id;
+    try {
+        const user = await User.findOne({ _id: userId });
+        if (!user) {
+            return next(new ErrorHandler('User not found', 404));
+        }
+        const token = jwt.sign({ _id: userId }, process.env.JWT_SECRET, { expiresIn: parseInt(process.env.EXPIRE) });
+        res.status(200).json({ success: true, user, token: token });
     } catch (error) {
         next(error);
     }
@@ -71,17 +82,22 @@ exports.profile = catchAsyncError(async (req, res, next) => {
 
 exports.update = catchAsyncError(async (req, res, next) => {
     try {
-        const user = await User.findByIdAndUpdate(req.user, req.body)
+        const user = await User.findByIdAndUpdate(req.user, { name: req.body.name, password: req.body.password })
         res.status(200).json({ success: true, message: "profile updated" });
     } catch (error) {
         next(error);
     }
 });
 
-exports.uploadAvatar = async (req, res, next) => {
+exports.uploadAvatar = catchAsyncError(async (req, res, next) => {
     try {
         var oldAvatar = "";
-        const user = await User.findById(req.user).select('-password -timestamp');
+        const user = await User.findById(req.user._id).select('-password -timestamp');
+
+        if (!user) {
+            return next(new ErrorHandler('Invalid UserId', 400));
+        }
+
         if (user.avatar) oldAvatar = user.avatar;
         user.avatar = req.file.path;
         await user.save();
@@ -97,9 +113,31 @@ exports.uploadAvatar = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+})
 
-exports.forgetPasswordMale = async (req, res, next) => {
+exports.logout = catchAsyncError(async (req, res, next) => {
+    try {
+        req.user = null;
+        res.status(200).json({ success: true, message: "logout" });
+    } catch (error) {
+        next(error);
+    }
+})
+
+
+/* not competed */
+
+exports.enrolledCourses = catchAsyncError(async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id).populate('courses');;
+        res.status(200).json({ success: true, courses: user.courses });
+    } catch (error) {
+        next(error);
+    }
+})
+
+
+exports.forgetPasswordMale = catchAsyncError(async (req, res, next) => {
     const email = req.body.email;
     try {
         if (!email) {
@@ -122,9 +160,9 @@ exports.forgetPasswordMale = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+})
 
-exports.changePasswordByOTP = async (req, res, next) => {
+exports.changePasswordByOTP = catchAsyncError(async (req, res, next) => {
     const { otp, password, email } = req.body;
     try {
         if (!otp || !password || !email) {
@@ -141,30 +179,13 @@ exports.changePasswordByOTP = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+})
 
-exports.enrolledCourses = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user._id).populate('courses');;
-        res.status(200).json({ success: true, courses: user.courses });
-    } catch (error) {
-        next(error);
-    }
-};
 
-exports.dashboard = async (req, res, next) => {
+exports.dashboard = catchAsyncError(async (req, res, next) => {
     try {
         res.status(200).json({ success: true, message: "user dashboard" });
     } catch (error) {
         next(error);
     }
-};
-
-exports.logout = async (req, res, next) => {
-    try {
-        req.user = null;
-        res.status(200).json({ success: true, message: "logout" });
-    } catch (error) {
-        next(error);
-    }
-};
+})

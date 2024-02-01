@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-
+const path = require('path');
 const userRouter = require("./router/userRouter");
 const courseRouter = require("./router/courseRouter");
 const adminRouter = require("./router/adminRouter");
@@ -20,13 +20,10 @@ dotenv.config(".env");
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors({
-    origin: process.env.ORIGIN,
-    credentials: true
-}));
+app.use(cors());
 connectDB();
 
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/user", userRouter);
 app.use("/course", courseRouter);

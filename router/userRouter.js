@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, profile, update, uploadAvatar, forgetPasswordMale, changePasswordByOTP, enrolledCourses, logout, dashboard } = require("../controllers/UserControllers");
+const { login, register, profile, update, uploadAvatar, forgetPasswordMale, changePasswordByOTP, enrolledCourses, logout, dashboard ,jwt} = require("../controllers/UserControllers");
 const authenticateToken = require('../middleware/jwt');
 const upload = require('../middleware/uploadImg');
 
@@ -23,6 +23,10 @@ router.get('/EnrolledCourses', authenticateToken, enrolledCourses)
 router.get('/logout', authenticateToken, logout);
 
 router.get('/dashboard', authenticateToken, dashboard);
+
+router.post('/jwt', authenticateToken, jwt);
+
+
 
 module.exports = router;
 

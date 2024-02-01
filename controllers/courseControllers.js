@@ -16,83 +16,57 @@ exports.getAllCourses = catchAsyncError(async (req, res, next) => {
     }
 });
 
-
 exports.create = catchAsyncError(async (req, res, next) => {
-    console.log(req.user);
 
     req.body = {
-        "title": "MERN STACK Development",
-        "description": "Learn JavaScript programming from scratch to advanced concepts.",
+        "title": "Mern Stack complete",
+        "description": "Learn Mern Stack programming from scratch to advanced concepts.",
         "instructor": "Aniket Patidar",
         "price": 999.99,
         "duration": 80,
         "category": "Programming",
         "level": "Intermediate",
-        "tags": ["JavaScript", "Web Development", "Programming"],
-        "thumbnailPoster": "https://example.com/thumbnail.jpg",
-        "demoVideoUrl": "https://example.com/demo_video.mp4",
+        "tags": ["Mern Stack", "Web Development", "Programming"],
+        "thumbnailPoster": "/uploads/58642e744c2d0434097e5ab2.jpg",
+        "demoVideoUrl": "/uploads/lesson1.mp4",
         "modules": [
             {
-                "title": "Introduction to JavaScript",
-                "description": "This module covers the basics of JavaScript.",
+                "title": "Introduction to Mern Stack",
+                "description": "This module covers the basics of Mern Stack.",
                 "videos": [
                     {
                         "title": "Variables and Data Types",
-                        "description": "Learn about variables and different data types in JavaScript.",
+                        "description": "Learn about variables and different data types in Mern Stack.",
                         "duration": 10,
-                        "videoUrl": "https://example.com/video1.mp4"
+                        "videoUrl": "/uploads/lesson1.mp4"
                     },
                     {
                         "title": "Functions and Scope",
-                        "description": "Understand functions and scope in JavaScript.",
+                        "description": "Understand functions and scope in Mern Stack.",
                         "duration": 15,
-                        "videoUrl": "https://example.com/video2.mp4"
+                        "videoUrl": "/uploads/lesson1.mp4"
                     }
                 ]
             },
             {
-                "title": "Intermediate JavaScript",
-                "description": "This module covers more advanced JavaScript topics.",
+                "title": "Intermediate Mern Stack",
+                "description": "This module covers more advanced Mern Stack topics.",
                 "videos": [
                     {
                         "title": "Arrays and Objects",
-                        "description": "Explore arrays and objects in JavaScript.",
+                        "description": "Explore arrays and objects in Mern Stack.",
                         "duration": 20,
-                        "videoUrl": "https://example.com/video3.mp4"
+                        "videoUrl": "/uploads/lesson1.mp4"
                     },
                     {
                         "title": "DOM Manipulation",
-                        "description": "Learn how to manipulate the DOM using JavaScript.",
+                        "description": "Learn how to manipulate the DOM using Mern Stack.",
                         "duration": 25,
-                        "videoUrl": "https://example.com/video4.mp4"
+                        "videoUrl": "/uploads/lesson1.mp4"
                     }
                 ]
             }
         ],
-        "questions": [
-            {
-                "user": "65b773726772824a42d63e06",
-                "question": "How do you declare a variable in JavaScript?",
-                "answer": "You can declare a variable using the 'var', 'let', or 'const' keywords."
-            },
-            {
-                "user": "65b8937565fde9b8e9917dea",
-                "question": "What is a closure in JavaScript?",
-                "answer": "A closure is a function defined within another function and has access to the outer function's scope."
-            }
-        ],
-        "reviews": [
-            {
-                "user": "65b8937565fde9b8e9917dea",
-                "rating": 4,
-                "comment": "Great course, covers a wide range of topics!"
-            },
-            {
-                "user": "65b773726772824a42d63e06",
-                "rating": 5,
-                "comment": "Excellent content and explanations. Highly recommended!"
-            }
-        ]
     }
 
     try {
@@ -106,7 +80,7 @@ exports.create = catchAsyncError(async (req, res, next) => {
 
 exports.update = catchAsyncError(async (req, res, next) => {
     try {
-        const courseId = req.params.id || "65b8a6d3a9bbbf1337dff214";
+        const courseId = req.params.id;
 
         let course = await Course.findById(courseId);
 
@@ -125,7 +99,7 @@ exports.update = catchAsyncError(async (req, res, next) => {
 
 exports.Delete = catchAsyncError(async (req, res, next) => {
     try {
-        const courseId = req.params.id || "65b8a6d3a9bbbf1337dff214";
+        const courseId = req.params.id;
 
         const course = await Course.findById(courseId);
 
@@ -173,3 +147,29 @@ exports.enrolledCourse = catchAsyncError(async (req, res, next) => {
         next(error);
     }
 });
+
+/* 
+"questions": [
+    {
+        "user": "65b773726772824a42d63e06",
+        "question": "How do you declare a variable in JavaScript?",
+        "answer": "You can declare a variable using the 'var', 'let', or 'const' keywords."
+    },
+    {
+        "user": "65b8937565fde9b8e9917dea",
+        "question": "What is a closure in JavaScript?",
+        "answer": "A closure is a function defined within another function and has access to the outer function's scope."
+    }
+],
+"reviews": [
+    {
+        "user": "65b8937565fde9b8e9917dea",
+        "rating": 4,
+        "comment": "Great course, covers a wide range of topics!"
+    },
+    {
+        "user": "65b773726772824a42d63e06",
+        "rating": 5,
+        "comment": "Excellent content and explanations. Highly recommended!"
+    }
+] */
