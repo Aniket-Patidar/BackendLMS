@@ -22,7 +22,7 @@ exports.register = catchAsyncError(async (req, res, next) => {
             return next(new ErrorHandler('User all ready exist', 400));
         }
 
-        const newUser = new User({ name, email, password });
+        const newUser = new User({ name, email, password }).populate('courses');
         await newUser.save();
         const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, { expiresIn: parseInt(process.env.EXPIRE) });
         res.status(200).json({ success: true, user, token, message: 'User registered successfully' });
@@ -55,7 +55,7 @@ exports.login = catchAsyncError(async (req, res, next) => {
 exports.jwt = catchAsyncError(async (req, res, next) => {
     const userId = req.user._id;
     try {
-        const user = await User.findOne({ _id: userId });
+        const user = await User.findOne({ _id: userId }).populate('courses');
         if (!user) {
             return next(new ErrorHandler('User not found', 404));
         }

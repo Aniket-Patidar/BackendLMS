@@ -16,6 +16,17 @@ exports.getAllCourses = catchAsyncError(async (req, res, next) => {
     }
 });
 
+exports.getByIdCourse = catchAsyncError(async (req, res, next) => {
+    const id = req.params.id; // Retrieve the ID from the dynamic route parameter
+
+    try {
+        const course = await Course.findById(id).populate("Enrolled");
+        if (!course) return next(new ErrorHandler("Course not found", 404)); // Adjust the status code to 404 for "Not Found"
+        res.status(200).json({ success: true, course });
+    } catch (error) {
+        next(error);
+    }
+});
 exports.create = catchAsyncError(async (req, res, next) => {
 
     req.body = {
@@ -122,7 +133,7 @@ exports.Delete = catchAsyncError(async (req, res, next) => {
 
 exports.enrolledCourse = catchAsyncError(async (req, res, next) => {
 
-    const courseId = req.params.id;
+    const courseId = req.body.courseId;
 
     const userId = req.user._id;
 
@@ -147,6 +158,8 @@ exports.enrolledCourse = catchAsyncError(async (req, res, next) => {
         next(error);
     }
 });
+
+
 
 /* 
 "questions": [
