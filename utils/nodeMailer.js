@@ -20,7 +20,6 @@ async function sendEmail(next, to, subject, text) {
             subject,
             text,
         });
-        console.log("Message sent: %s", info.messageId);
     } catch (err) {
         next(err);
     }

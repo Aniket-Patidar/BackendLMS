@@ -84,7 +84,6 @@ exports.create = catchAsyncError(async (req, res, next) => {
         const course = await Course.create({ ...req.body, createdBy: req.user._id });
         res.status(200).json({ success: true, course });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 });
@@ -103,7 +102,6 @@ exports.update = catchAsyncError(async (req, res, next) => {
 
         res.status(200).json({ success: true, course });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 });
