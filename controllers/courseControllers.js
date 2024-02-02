@@ -28,58 +28,6 @@ exports.getByIdCourse = catchAsyncError(async (req, res, next) => {
     }
 });
 exports.create = catchAsyncError(async (req, res, next) => {
-
-    req.body = {
-        "title": "Mern Stack complete",
-        "description": "Learn Mern Stack programming from scratch to advanced concepts.",
-        "instructor": "Aniket Patidar",
-        "price": 999.99,
-        "duration": 80,
-        "category": "Programming",
-        "level": "Intermediate",
-        "tags": ["Mern Stack", "Web Development", "Programming"],
-        "thumbnailPoster": "/uploads/58642e744c2d0434097e5ab2.jpg",
-        "demoVideoUrl": "/uploads/lesson1.mp4",
-        "modules": [
-            {
-                "title": "Introduction to Mern Stack",
-                "description": "This module covers the basics of Mern Stack.",
-                "videos": [
-                    {
-                        "title": "Variables and Data Types",
-                        "description": "Learn about variables and different data types in Mern Stack.",
-                        "duration": 10,
-                        "videoUrl": "/uploads/lesson1.mp4"
-                    },
-                    {
-                        "title": "Functions and Scope",
-                        "description": "Understand functions and scope in Mern Stack.",
-                        "duration": 15,
-                        "videoUrl": "/uploads/lesson1.mp4"
-                    }
-                ]
-            },
-            {
-                "title": "Intermediate Mern Stack",
-                "description": "This module covers more advanced Mern Stack topics.",
-                "videos": [
-                    {
-                        "title": "Arrays and Objects",
-                        "description": "Explore arrays and objects in Mern Stack.",
-                        "duration": 20,
-                        "videoUrl": "/uploads/lesson1.mp4"
-                    },
-                    {
-                        "title": "DOM Manipulation",
-                        "description": "Learn how to manipulate the DOM using Mern Stack.",
-                        "duration": 25,
-                        "videoUrl": "/uploads/lesson1.mp4"
-                    }
-                ]
-            }
-        ],
-    }
-
     try {
         const course = await Course.create({ ...req.body, createdBy: req.user._id });
         res.status(200).json({ success: true, course });
