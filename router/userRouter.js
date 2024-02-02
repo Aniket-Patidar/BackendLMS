@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, profile, update, uploadAvatar, forgetPasswordMale, changePasswordByOTP, enrolledCourses, logout, dashboard ,jwt} = require("../controllers/UserControllers");
+const { login, register, profile, update, uploadAvatar, forgetPasswordMale, changePasswordByOTP, enrolledCourses, logout, dashboard ,jwt} = require("../controllers/userControllers");
 const authenticateToken = require('../middleware/jwt');
 const upload = require('../middleware/uploadImg');
 
