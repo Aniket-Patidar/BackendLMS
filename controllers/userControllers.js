@@ -22,7 +22,8 @@ exports.register = catchAsyncError(async (req, res, next) => {
             return next(new ErrorHandler('User all ready exist', 400));
         }
 
-        const newUser = new User({ name, email, password }).populate('courses');
+        const newUser = await User.create({ name, email, password })
+        await newUser.populate('courses');
         await newUser.save();
         const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, { expiresIn: parseInt(process.env.EXPIRE) });
         res.status(200).json({ success: true, user, token, message: 'User registered successfully' });

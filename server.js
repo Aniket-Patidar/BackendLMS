@@ -10,10 +10,7 @@ const adminRouter = require("./router/adminRouter");
 const errorMiddleware = require('./middleware/error');
 const connectDB = require('./models/connectDB');
 dotenv.config(".env");
-
-/*  */
-
-
+const axios = require('axios');
 
 
 /* middlewares */
@@ -25,9 +22,7 @@ connectDB();
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.get("/",(req, res) =>{
-    res.sendFile("server is running")
-})
+
 app.use("/user", userRouter);
 app.use("/course", courseRouter);
 app.use("/admin", adminRouter);

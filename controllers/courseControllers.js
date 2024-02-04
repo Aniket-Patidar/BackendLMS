@@ -7,8 +7,8 @@ const ErrorHandler = require("../utils/ErrorHandler");
 
 exports.getAllCourses = catchAsyncError(async (req, res, next) => {
     try {
-        const courses = await Course.find().populate("Enrolled");
-
+        // const courses = await Course.find().populate("Enrolled");
+        const courses = await Course.find();
         res.status(200).json({ success: true, courses });
     } catch (error) {
         console.error("Error fetching courses:", error);
