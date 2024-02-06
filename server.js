@@ -9,6 +9,7 @@ const courseRouter = require("./router/courseRouter");
 const adminRouter = require("./router/adminRouter");
 const errorMiddleware = require('./middleware/error');
 const connectDB = require('./models/connectDB');
+
 dotenv.config(".env");
 const axios = require('axios');
 
@@ -21,6 +22,9 @@ app.use(cors());
 connectDB();
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
 
 
 app.use("/user", userRouter);

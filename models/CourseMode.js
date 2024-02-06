@@ -94,7 +94,8 @@ const courseSchema = new mongoose.Schema({
         {
             user: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'User'
+                ref: 'User',
+                unique: [true, "Your review is already exists"]
             },
             rating: {
                 type: Number,
@@ -111,6 +112,8 @@ const courseSchema = new mongoose.Schema({
     Enrolled: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        unique: [true, "you all Ready have this course"]
+
     }],
 
     createdBy: {

@@ -32,11 +32,14 @@ const userSchema = new mongoose.Schema({
     },
     courses: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course'
+        ref: 'Course',
+        unique: [true, "you all Ready have this course"],
+        sparse: true
     }],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course',
+        unique: [true, "you all Ready created this course"]
     }
 }, { timestamps: true });
 
