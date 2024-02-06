@@ -30,12 +30,13 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Verification status is required'],
         default: false
     },
-    courses: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course',
-        unique: [true, "you all Ready have this course"],
-        sparse: true
-    }],
+    courses: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Course'
+        }],
+        default: null
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course',
