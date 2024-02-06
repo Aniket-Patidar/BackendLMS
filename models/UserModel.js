@@ -30,13 +30,10 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Verification status is required'],
         default: false
     },
-    courses: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Course'
-        }],
-        default: null
-    },
+    courses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+    }],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course',
