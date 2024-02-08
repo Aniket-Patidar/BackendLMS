@@ -141,13 +141,16 @@ exports.getByIdCourse = catchAsyncError(async (req, res, next) => {
 
 exports.create = catchAsyncError(async (req, res, next) => {
     try {
-        const user = await User.findById(user._id);
+        const user = await User.findById(req.user._id);
         if (!user) return next(new ErrorHandler("User not found", 404));
         const course = await Course.create({ ...req.body, createdBy: req.user._id });
-        if (!user) return next(new ErrorHandler("Course creation failed", 404));
+
+        if (!course) return next(new ErrorHandler("Course creation failed", 404));
         user.courses.push(course._id);
+        course.createdBy = user.id;
         await user.save();
-        res.status(200).json({ success: true, course });
+        await course.save();
+        res.status(200).json({ success: true, course, user });
     } catch (error) {
         next(error);
     }

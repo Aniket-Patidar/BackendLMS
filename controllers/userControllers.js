@@ -25,7 +25,7 @@ exports.register = catchAsyncError(async (req, res, next) => {
         await newUser.populate('courses');
         await newUser.save();
         const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, { expiresIn: parseInt(process.env.EXPIRE) });
-        res.status(200).json({ success: true, user, token, message: 'User registered successfully' });
+        res.status(200).json({ success: true, user:newUser, token});
     } catch (error) {
         next(error);
     }
@@ -83,7 +83,7 @@ exports.profile = catchAsyncError(async (req, res, next) => {
 exports.update = catchAsyncError(async (req, res, next) => {
     try {
         const user = await User.findByIdAndUpdate(req.user, { name: req.body.name, password: req.body.password })
-        res.status(200).json({ success: true, message: "profile updated" });
+        res.status(200).json({ success: true, message: "profile updated",user });
     } catch (error) {
         next(error);
     }
@@ -109,7 +109,7 @@ exports.uploadAvatar = catchAsyncError(async (req, res, next) => {
                 }
             })
         }
-        res.status(200).json({ success: true, message: "uploadAvatar" });
+        res.status(200).json({ success: true, user,message: "uploadAvatar" });
     } catch (error) {
         next(error);
     }

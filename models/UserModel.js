@@ -30,13 +30,13 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Verification status is required'],
         default: false
     },
-    // courses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    courses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
 
-        createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course',
-        unique: [true, "you all Ready created this course"]
-    }
+    //     createdBy: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'Course',
+    //     unique: [true, "you all Ready created this course"]
+    // }
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
