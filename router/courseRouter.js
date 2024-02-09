@@ -11,7 +11,7 @@ router.post('/create', isAdmin, create)
 
 router.post('/order/:id', authenticateToken, Order)
 
-router.post('/order/validate', authenticateToken, ValidateOrder)
+router.post('/order/validate/:id', authenticateToken, ValidateOrder)
 
 router.post('/update/:id', isAdmin, update)
 

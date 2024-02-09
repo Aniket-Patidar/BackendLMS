@@ -3,16 +3,29 @@ const Course = require("../models/CourseMode");
 const User = require("../models/UserModel");
 const ErrorHandler = require("../utils/ErrorHandler");
 const Razorpay = require('razorpay')
-const crypto = require('crypto')
+const crypto = require('crypto');
+const sendEmail = require("../utils/nodeMailer");
 
 
-exports.Order = catchAsyncError(async (req, res) => {
-
+exports.Order = catchAsyncError(async (req, res, next) => {
     const courseId = req.params.id;
-
     const userId = req.user._id;
 
     try {
+        const course = await Course.findById(courseId);
+        const user = await User.findById(userId);
+
+        if (!course) {
+            return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
+        }
+
+        if (!user) {
+            return next(new ErrorHandler('User not found', 404));
+        }
+
+        if (course.Enrolled.includes(user._id)) {
+            return next(new ErrorHandler(`User is already enrolled in the course ${course.title}`, 400));
+        }
 
         const razorpay = new Razorpay({
             key_id: process.env.RAZORPAY_KEY_ID,
@@ -23,17 +36,40 @@ exports.Order = catchAsyncError(async (req, res) => {
         const order = await razorpay.orders.create(options);
 
         if (!order) {
-            return next(new ErrorHandler(`Payment failed`, 404));
-
+            return next(new ErrorHandler(`Payment failed`, 400));
         }
 
+        res.status(200).json({ success: true, order });
+    } catch (err) {
+        console.log(err, "Error");
+        next(err);
+    }
+});
+
+exports.ValidateOrder = catchAsyncError(async (req, res, next) => {
+    const courseId = req.params.id;
+    const userId = req.user._id;
+
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
+        sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+        const digest = sha.digest("hex");
+
+        if (digest !== razorpay_signature) {
+            return res.status(400).json({ msg: "Transaction is not legitimate!" });
+        }
 
         const course = await Course.findById(courseId);
-
         const user = await User.findById(userId);
 
         if (!course) {
             return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
+        }
+
+        if (!user) {
+            return next(new ErrorHandler('User not found', 404));
         }
 
         course.Enrolled.push(userId);
@@ -42,16 +78,27 @@ exports.Order = catchAsyncError(async (req, res) => {
         user.courses.push(courseId);
         await user.save();
 
-        res.status(200).json({ success: true, message: "you enrolled to course", order });
 
-    }
 
-    catch (err) {
+
+        sendEmail(next, user.email, "course payment successfull", `thanks for purchase course your  orderId : ${razorpay_order_id} `);
+
+        res.json({
+            msg: "success",
+            orderId: razorpay_order_id,
+            paymentId: razorpay_payment_id,
+        });
+
+
+    } catch (err) {
         console.log(err, "Error");
         next(err);
     }
 
-})
+
+});
+
+
 
 exports.review = catchAsyncError(async (req, res) => {
     const { courseID, rating, comment } = req.body;
@@ -97,24 +144,7 @@ exports.review = catchAsyncError(async (req, res) => {
     }
 })
 
-exports.ValidateOrder = catchAsyncError(async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-        req.body;
 
-    const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
-    //order_id + "|" + razorpay_payment_id
-    sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const digest = sha.digest("hex");
-    if (digest !== razorpay_signature) {
-        return res.status(400).json({ msg: "Transaction is not legit!" });
-    }
-
-    res.json({
-        msg: "success",
-        orderId: razorpay_order_id,
-        paymentId: razorpay_payment_id,
-    });
-})
 
 exports.getAllCourses = catchAsyncError(async (req, res, next) => {
     try {
