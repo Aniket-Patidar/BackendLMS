@@ -7,24 +7,129 @@ const crypto = require('crypto');
 const sendEmail = require("../utils/nodeMailer");
 
 
-exports.Order = catchAsyncError(async (req, res, next) => {
+// exports.Order = catchAsyncError(async (req, res, next) => {
+//     const courseId = req.params.id;
+//     const userId = req.user._id;
+
+//     try {
+//         const course = await Course.findById(courseId);
+//         const user = await User.findById(userId);
+
+//         if (!course) {
+//             return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
+//         }
+
+//         if (!user) {
+//             return next(new ErrorHandler('User not found', 404));
+//         }
+
+//         if (course.Enrolled.includes(user._id)) {
+//             return next(new ErrorHandler(`User is already enrolled in the course ${course.title}`, 400));
+//         }
+
+//         const razorpay = new Razorpay({
+//             key_id: process.env.RAZORPAY_KEY_ID,
+//             key_secret: process.env.RAZORPAY_SECRET,
+//         });
+
+//         const options = req.body;
+//         const order = await razorpay.orders.create(options);
+
+//         if (!order) {
+//             return next(new ErrorHandler(`Payment failed`, 400));
+//         }
+
+//         res.status(200).json({ success: true, order });
+//     } catch (err) {
+//         console.log(err, "Error");
+//         next(err);
+//     }
+// });
+
+// exports.ValidateOrder = catchAsyncError(async (req, res, next) => {
+//     const courseId = req.params.id;
+//     const userId = req.user._id;
+
+//     try {
+//         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+//         const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
+//         sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+//         const digest = sha.digest("hex");
+
+
+
+
+//         if (digest !== razorpay_signature) {
+
+//             return res.status(400).json({ msg: "Transaction is not legitimate!" });
+//         }
+
+
+//         const course = await Course.findById(courseId);
+//         const user = await User.findById(userId);
+
+//         if (!course) {
+//             return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
+//         }
+
+//         if (!user) {
+//             return next(new ErrorHandler('User not found', 404));
+//         }
+
+//         course.Enrolled.push(userId);
+//         await course.save();
+
+//         user.courses.push(courseId);
+//         await user.save();
+
+
+//         res.json({
+//             msg: "success",
+//             orderId: razorpay_order_id,
+//             paymentId: razorpay_payment_id,
+//         });
+
+
+//     } catch (err) {
+//         console.log(err, "Error");
+//         next(err);
+//     }
+
+
+// });
+
+
+
+
+exports.Order = catchAsyncError(async (req, res) => {
+
     const courseId = req.params.id;
+
     const userId = req.user._id;
 
     try {
+
+
         const course = await Course.findById(courseId);
+
         const user = await User.findById(userId);
 
         if (!course) {
             return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
         }
 
+
         if (!user) {
             return next(new ErrorHandler('User not found', 404));
         }
 
         if (course.Enrolled.includes(user._id)) {
-            return next(new ErrorHandler(`User is already enrolled in the course ${course.title}`, 400));
+            return next(new ErrorHandler(`This course is already in the course collection ${course.title}`, 400));
+        }
+
+        if (user.courses.includes(course._id)) {
+            return next(new ErrorHandler(`This course is already in the course collection ${course.title}`, 400));
         }
 
         const razorpay = new Razorpay({
@@ -36,40 +141,16 @@ exports.Order = catchAsyncError(async (req, res, next) => {
         const order = await razorpay.orders.create(options);
 
         if (!order) {
-            return next(new ErrorHandler(`Payment failed`, 400));
+            return next(new ErrorHandler(`Payment failed`, 404));
+
         }
 
-        res.status(200).json({ success: true, order });
-    } catch (err) {
-        console.log(err, "Error");
-        next(err);
-    }
-});
+        /* course */
 
-exports.ValidateOrder = catchAsyncError(async (req, res, next) => {
-    const courseId = req.params.id;
-    const userId = req.user._id;
 
-    try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-        const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
-        sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-        const digest = sha.digest("hex");
-
-        if (digest !== razorpay_signature) {
-            return res.status(400).json({ msg: "Transaction is not legitimate!" });
-        }
-
-        const course = await Course.findById(courseId);
-        const user = await User.findById(userId);
 
         if (!course) {
             return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
-        }
-
-        if (!user) {
-            return next(new ErrorHandler('User not found', 404));
         }
 
         course.Enrolled.push(userId);
@@ -80,8 +161,37 @@ exports.ValidateOrder = catchAsyncError(async (req, res, next) => {
 
 
 
+        res.status(200).json({ success: true, order });
+    }
 
-        sendEmail(next, user.email, "course payment successfull", `thanks for purchase course your  orderId : ${razorpay_order_id} `);
+    catch (err) {
+        console.log(err, "Error");
+        next(err);
+    }
+
+})
+
+
+exports.ValidateOrder = catchAsyncError(async (req, res) => {
+
+    const courseId = req.params.id;
+
+    const userId = req.user._id;
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+            req.body;
+        const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
+        //order_id + "|" + razorpay_payment_id
+        sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+        const digest = sha.digest("hex");
+        if (digest !== razorpay_signature) {
+            return res.status(400).json({ msg: "Transaction is not legit!" });
+        }
+
+
+
+        /* enrollment */
+
 
         res.json({
             msg: "success",
@@ -89,20 +199,16 @@ exports.ValidateOrder = catchAsyncError(async (req, res, next) => {
             paymentId: razorpay_payment_id,
         });
 
-
     } catch (err) {
-        console.log(err, "Error");
+        console.log(error, "payment vari");
         next(err);
     }
 
-
-});
-
+})
 
 
 exports.review = catchAsyncError(async (req, res) => {
     const { courseID, rating, comment } = req.body;
-    console.log();
     const userId = req.user._id;
     try {
         let course = await Course.findById(courseID);
@@ -111,31 +217,27 @@ exports.review = catchAsyncError(async (req, res) => {
             return res.status(404).json({ error: 'Course not found' });
         }
 
-
-
-
-        let existingReviewIndex = course.reviews.findIndex(review => {
-            const objectIdInstance = review.user
-            const objectIdString = objectIdInstance.toString();
-            objectIdString === userId
-        });
-
-
-        if (existingReviewIndex !== -1) {
-            // Update existing review
-            course.reviews[existingReviewIndex].rating = rating;
-            course.reviews[existingReviewIndex].comment = comment;
-            await course.save();
-            return res.status(200).json({ message: 'Review updated successfully' });
-        }
-        // Create a new review
         const newReview = {
             user: userId,
             rating: rating,
             comment: comment
         }
-        course.reviews.push(newReview);
+
+
+        const filterArray = course.reviews.filter(review => review.user != userId);
+        await filterArray.push(newReview);
+
+        course.reviews = filterArray;
+
+        // calculating rating ;
+
+        const totalReviews = course.reviews.length;
+        if (totalReviews != 0) {
+            const sumOfRatings = course.reviews.reduce((acc, review) => acc + review.rating, 0);
+            course.rating = sumOfRatings / totalReviews;
+        }
         await course.save();
+
 
         return res.status(201).json({ message: 'New review created' });
     } catch (error) {
@@ -161,7 +263,7 @@ exports.getByIdCourse = catchAsyncError(async (req, res, next) => {
     const id = req.params.id; // Retrieve the ID from the dynamic route parameter
 
     try {
-        const course = await Course.findById(id).populate("Enrolled");
+        const course = await Course.findById(id).populate("Enrolled").populate("reviews.user")
         if (!course) return next(new ErrorHandler("Course not found", 404)); // Adjust the status code to 404 for "Not Found"
         res.status(200).json({ success: true, course });
     } catch (error) {
@@ -256,3 +358,60 @@ exports.enrolledCourse = catchAsyncError(async (req, res, next) => {
 });
 
 
+
+
+exports.question = catchAsyncError(async (req, res, next) => {
+
+    const { question, courseId } = req.body;
+
+    const userId = req.user._id;
+
+    try {
+
+        const course = await Course.findById(courseId);
+        const user = await User.findById(userId);
+
+        if (!course) {
+            return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
+        }
+
+
+        course.questions.push({ user: userId, question: question });
+        await course.save();
+
+
+        res.status(200).json({ success: true, message: ` your doutes have resolve soon` });
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+
+exports.answer = catchAsyncError(async (req, res, next) => {
+
+    const { answer, courseId, questionId } = req.body;
+
+    const userId = req.user._id;
+
+    try {
+
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return next(new ErrorHandler(`Course with ID ${courseId} not found`, 404));
+        }
+
+        
+        const index = course.questions.findIndex(e => e.id == questionId);
+        
+        
+        course.questions[index].answer = answer || "answer";
+        await course.save();
+
+        
+        res.status(200).json({ success: true, message: `answer is uploaded` });
+    } catch (error) {
+        next(error);
+    }
+});

@@ -86,7 +86,6 @@ const courseSchema = new mongoose.Schema({
             },
             answer: {
                 type: String,
-                required: [true, 'Answer is required']
             }
         }
     ],
@@ -120,8 +119,15 @@ const courseSchema = new mongoose.Schema({
         ref: 'User',
         required: [true, 'Create ID is required']
 
+    },
+    rating: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
+
+
+
 
 const Course = mongoose.model('Course', courseSchema);
 module.exports = Course;
